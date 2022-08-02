@@ -1,0 +1,9 @@
+fastapi
+pydantic
+uvicorn
+Pillow
+redis
+prometheus-fastapi-instrumentator
+prometheus_client
+python-multipart
+aiofiles

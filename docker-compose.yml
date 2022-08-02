@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  apiserver:
+    build:
+      context: .
+      dockerfile: ./deploy/apiserver/Dockerfile
+      target: dev
+    container_name: apiserver
+    restart: on-failure
+    ports:
+    - "80:80"
+    networks:
+    - deployml_network
+    depends_on:
+      - redis
+      - modelserver
+    env_file:
+    - ./config/env/common.env
+    environment:
+      RELOAD: "true"
+    volumes:
+      - ./apiserver:/app
+
+networks:
+  deployml_network:
