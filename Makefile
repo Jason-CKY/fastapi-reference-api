@@ -10,53 +10,27 @@ lint:			## Lint check
 	docker run --rm -v $(PWD):/src:Z \
 	--workdir=/src odinuge/yapf:latest yapf \
 	--style '{based_on_style: pep8, dedent_closing_brackets: true, coalesce_brackets: true}' \
-	--no-local-style --verbose --recursive --diff --parallel apiserver modelserver
+	--no-local-style --verbose --recursive --diff --parallel src
 
 .PHONY: format
 format:			## Format code in place to conform to lint check
 	docker run --rm -v $(PWD):/src:Z \
 	--workdir=/src odinuge/yapf:latest yapf \
 	--style '{based_on_style: pep8, dedent_closing_brackets: true, coalesce_brackets: true}' \
-	--no-local-style --verbose --recursive --in-place --parallel apiserver modelserver
+	--no-local-style --verbose --recursive --in-place --parallel src
 
-.PHONY: pyflakes
-pyflakes:		## Pyflakes check for any unused variables/classes
-	docker run --rm -v $(PWD):/src:Z \
-	--workdir=/src python:3.8 \
-	/bin/bash -c "pip install --upgrade pyflakes && python -m pyflakes /src && echo 'pyflakes passed!'"
+.PHONY: build
+build:	## Build deployment via docker-compose --build
+	docker compose up --build -d 
 
-.PHONY: start-mlflow	
-start-mlflow:	## Start mlflow deployment via docker-compose
-	docker-compose --env-file config/mlflow/creds.env -f docker-compose-mlflow.yml up -d
+.PHONY: start	
+start:	## Start deployment via docker-compose
+	docker compose up -d
 
-.PHONY: stop-mlflow
-stop-mlflow:	## Stop mlflow deployment via docker-compose
-	docker-compose --env-file config/mlflow/creds.env -f docker-compose-mlflow.yml down
-
-.PHONY: destroy-mlflow
-destroy-mlflow:	## Destroy mlflow deployment via docker-compose with volumes
-	docker-compose --env-file config/mlflow/creds.env -f docker-compose-mlflow.yml down -v
-
-.PHONY: deploy
-deploy:		## deploy api with models in mlflow and monitoring deployed
-	docker-compose --env-file config/mlflow/creds.env \
-	-f docker-compose-mlflow.yml \
-	-f docker-compose.yml \
-	-f docker-compose-monitoring.yml \
-	up --build -d
+.PHONY: stop
+stop:	## Stop deployment via docker-compose
+	docker compose down
 
 .PHONY: destroy
-destroy:		## Bring down all hosted services with their volumes
-	docker-compose --env-file config/mlflow/creds.env \
-	-f docker-compose-mlflow.yml \
-	-f docker-compose.yml \
-	-f docker-compose-monitoring.yml \
-	down -v
-
-.PHONY: get-config
-get-config:		## Get config by combining all the docker-compose files by running docker-compose config
-	docker-compose --env-file config/mlflow/creds.env \
-	-f docker-compose-mlflow.yml \
-	-f docker-compose.yml  \
-	-f docker-compose-monitoring.yml \
-	config > config.yaml
+destroy:	## Destroy deployment via docker-compose with volumes
+	docker compose down -v

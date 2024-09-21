@@ -1,7 +1,6 @@
-import logging
 import os
 from pathlib import Path
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
@@ -16,11 +15,4 @@ class Settings(BaseSettings):
 settings = Settings(
     app_description=(Path(__file__).parent.parent /
                      'static/docs.md').read_text(encoding='utf-8')
-)
-
-# configure project-specific logger
-logging.basicConfig(
-    level=settings.log_level,
-    format=
-    '%(asctime)s - %(name)s:%(funcName)s:%(lineno)d - %(levelname)s - %(message)s'
 )

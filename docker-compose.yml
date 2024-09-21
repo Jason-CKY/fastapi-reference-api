@@ -1,5 +1,3 @@
-version: '3'
-
 services:
   apiserver:
     build:
@@ -9,18 +7,10 @@ services:
     container_name: apiserver
     restart: on-failure
     ports:
-    - "80:80"
-    networks:
-    - deployml_network
-    depends_on:
-      - redis
-      - modelserver
-    env_file:
-    - ./config/env/common.env
+    - "8080:8080"
     environment:
-      RELOAD: "true"
+      APP_VERSION: "development"
+      LOGURU_LEVEL: "DEBUG"
     volumes:
-      - ./apiserver:/app
+      - ./src/api:/code
 
-networks:
-  deployml_network:

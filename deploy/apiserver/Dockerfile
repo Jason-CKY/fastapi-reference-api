@@ -1,20 +1,13 @@
-FROM python:3.9 as deploy
+FROM python:3.10 AS dev
 
 COPY ./deploy/apiserver/requirements.txt /tmp/requirements.txt
 RUN pip install -r /tmp/requirements.txt
 
-COPY ./deploy/apiserver/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+COPY ./src/api /code/api
+WORKDIR /code
 
-COPY ./apiserver/app /app/app
-WORKDIR /app/
-ENV PYTHONPATH=/app
+CMD ["fastapi", "run", "app/main.py", "--host", "0.0.0.0", "--port", "8080", "--reload"]
 
-CMD ["/entrypoint.sh"]
+FROM dev AS production
 
-FROM deploy as dev
-
-COPY ./deploy/apiserver/requirements-dev.txt /tmp/requirements-dev.txt
-RUN pip install -r /tmp/requirements-dev.txt
-
-COPY ./apiserver /app
+CMD ["fastapi", "run", "app/main.py", "--host", "0.0.0.0", "--port", "8080"]
